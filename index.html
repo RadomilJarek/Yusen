@@ -1,1 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行程月曆</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="calendar-container">
+        <!-- 頭部區域 -->
+        <div class="calendar-header">
+            <h2 id="calendar-title" class="clickable-title">行程月曆</h2>
+            <!-- 功能按鈕 -->
+            <div class="header-utility">
+                <!-- 語言和主題選擇器 -->
+                <div class="utility-controls">
+                    <div class="language-selector">
+                        <button class="lang-btn" data-lang="zh">中</button>
+                        <button class="lang-btn" data-lang="en">En</button>
+                        <button class="lang-btn" data-lang="ja">日</button>
+                    </div>
+                    <div class="theme-selector">
+                        <button class="theme-btn" data-theme="light"><i class="fas fa-sun"></i></button>
+                        <button class="theme-btn" data-theme="dark"><i class="fas fa-moon"></i></button>
+                    </div>
+                </div>
+                <!-- 功能按鈕 -->
+                <div class="header-buttons">
+                    <button class="action-button" id="new-calendar-btn">開新月曆</button>
+                    <button class="action-button" id="load-calendar-btn">載入月曆</button>
+                    <button class="action-button" id="save-calendar-btn">另存月曆</button>
+                    <input type="file" id="calendar-file-input" style="display: none;">
+                    <a id="calendar-download-link" style="display: none;"></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="calendar-content">
+            <div class="calendar-section">
+                <div class="calendar-month-header">
+                    <div class="month-display">
+                        <h3 id="current-month-year">MAY 2025</h3>
+                    </div>
+                    <div class="date-controls">
+                        <select id="year-dropdown">
+                            <!-- 年份選項將由JavaScript填充 -->
+                        </select>
+                        <select id="month-dropdown">
+                            <!-- 月份選項將由JavaScript填充 -->
+                        </select>
+                        <button class="add-button" id="add-schedule-btn">新增行程</button>
+                    </div>
+                </div>
+                
+                <div class="calendar">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>日</th>
+                                <th>一</th>
+                                <th>二</th>
+                                <th>三</th>
+                                <th>四</th>
+                                <th>五</th>
+                                <th>六</th>
+                            </tr>
+                        </thead>
+                        <tbody id="calendar-body">
+                            <!-- 日曆內容將由JavaScript生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="schedule-info-section">
+                <div id="schedule-info">
+                    <h3>選擇一個日期查看行程</h3>
+                </div>
+            </div>
+        </div>
 
+        <!-- 行程模態框 -->
+        <div id="schedule-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">新增行程</h3>
+                    <span id="close-modal" class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="schedule-form">
+                        <input type="hidden" id="schedule-id">
+                        <div class="form-group">
+                            <label for="schedule-date">日期</label>
+                            <input type="date" id="schedule-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="schedule-type" id="schedule-type-label">行程類型</label>
+                            <div class="type-control-container">
+                                <div class="type-dropdown-container">
+                                    <select id="schedule-type">
+                                        <option value="default">預設</option>
+                                    </select>
+                                </div>
+                                <div class="type-control-buttons">
+                                    <button type="button" class="type-btn add-type-btn" id="add-type-btn">新增類型</button>
+                                    <button type="button" class="type-btn delete-type-btn" id="delete-type-btn">刪除類型</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="schedule-details">詳情</label>
+                            <textarea id="schedule-details" required></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="save-button">儲存</button>
+                            <button type="button" id="delete-btn" class="delete-button">刪除</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 標題編輯模態框 -->
+        <div id="title-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>編輯日曆標題</h3>
+                    <span class="close" id="close-title-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="calendar-title-input">日曆標題</label>
+                        <input type="text" id="calendar-title-input" placeholder="請輸入日曆標題">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="save-button" id="save-title-btn">儲存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新增類型模態框 -->
+        <div id="add-type-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>新增行程類型</h3>
+                    <span class="close" id="close-add-type-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="type-name">類型名稱</label>
+                        <input type="text" id="type-name" placeholder="請輸入類型名稱">
+                    </div>
+                    <div class="form-group">
+                        <label for="type-color">類型顏色</label>
+                        <div class="color-picker" id="color-picker">
+                            <!-- 顏色選項將由JavaScript生成 -->
+                        </div>
+                        <input type="hidden" id="type-color" value="#4285f4">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="save-button" id="save-type-btn">儲存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 刪除類型模態框 -->
+        <div id="delete-type-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>刪除行程類型</h3>
+                    <span class="close" id="close-delete-type-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="delete-type-select">選擇要刪除的類型</label>
+                        <select id="delete-type-select">
+                            <!-- 類型選項將由JavaScript生成 -->
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="delete-button" id="confirm-delete-type-btn">刪除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
